@@ -12,7 +12,11 @@ import {
     REMOVE_CHANNEL_FROM_FAV_ERROR,
     GET_ALL_CHANNELS,
     CURENT_USER_INFO,
-    MESSAGE_LIST
+    MESSAGE_LIST,
+    CURRENT_CHANNEL,
+    CURRENT_CHANNEL_INFO,
+    GET_ALL_USERS,
+    CLEAR_USER
 } from '../actions'
 
 const INITIAL_STATE = {
@@ -21,7 +25,7 @@ const INITIAL_STATE = {
     messageList: null,
     channelAdded: false,
     channelFailed: false,
-    channelsByAdmin: null,
+    channelsByAdmin: [],
     userAddedToChannel: false,
     userAddedToChannelFailed: false,
     userRemovedFromChannel: false,
@@ -29,7 +33,9 @@ const INITIAL_STATE = {
     channelAddedToFav: false,
     channelAddedToFavError: false,
     channelRemovedFromFav: false,
-    channelRemovedFromFavError: false
+    channelRemovedFromFavError: false,
+    currentChannelInfo: null,
+    allUsers: null
 }
 
 const reducer = (state = INITIAL_STATE, action) => {
@@ -62,6 +68,14 @@ const reducer = (state = INITIAL_STATE, action) => {
             return { ...state, channelRemovedFromFav: true }
         case REMOVE_CHANNEL_FROM_FAV_ERROR:
             return { ...state, channelRemovedFromFavError: true }
+        case CURRENT_CHANNEL:
+            return { ...state, currentChannel: action.payload }
+        case CURRENT_CHANNEL_INFO:
+            return { ...state, currentChannelInfo: action.payload }
+        case GET_ALL_USERS:
+            return { ...state, allUsers: action.payload }
+        case CLEAR_USER:
+            return INITIAL_STATE
         default:
             return state
     }

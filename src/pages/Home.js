@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Row, Layout, message } from 'antd'
-import { signOutUser } from '../actions/index'
+import { signOutUser, getAllChannelsAdmin, getCurrentUserInfo } from '../actions/index'
 import Sidebar from '../components/Sidebar'
 import ChannelDrawer from '../components/ChannelDrawer'
 import MessageSection from '../components/MessageSection'
@@ -10,6 +10,14 @@ import UserList from '../components/UserList'
 const { Content } = Layout
 
 class Home extends Component {
+    componentDidMount = () => {
+        if (this.props.currentUser) {
+            const userId = this.props.currentUser.uid
+            this.props.getCurrentUserInfo(userId)
+            this.props.getAllChannelsAdmin(userId)
+        }
+    }
+
     componentDidUpdate = (prevProps, prevState) => {
         if (this.props.channelAdded) {
             message.success('Channel has been created.')
@@ -17,26 +25,36 @@ class Home extends Component {
         if (this.props.channelFailed) {
             message.error('This is an error while creating a channel.')
         }
+
+        if (prevProps.currentUser !== this.props.currentUser) {
+            console.log('called', prevProps.currentUser, this.props.currentUser)
+            const userId = this.props.currentUser.uid
+            this.props.getCurrentUserInfo(userId)
+            this.props.getAllChannelsAdmin(userId)
+        }
     }
 
     render() {
         return (
             <Content>
                 <Row>
-                    {/* <button onClick={() => this.props.signOutUser()}>Logout</button> */}
-                    <Sidebar />
                     <ChannelDrawer />
-                    <MessageSection />
-                    <UserList />
+                    {this.props.currentChannel && <MessageSection />}
+                    {this.props.currentChannel && <UserList />}
                 </Row>
             </Content>
         )
     }
 }
 
-const mapStateToProps = ({ chat }) => ({ channelAdded: chat.channelAdded, channelFailed: chat.channelFailed })
+const mapStateToProps = ({ chat, auth }) => ({
+    channelAdded: chat.channelAdded,
+    channelFailed: chat.channelFailed,
+    currentUser: auth.currentUser,
+    currentChannel: chat.currentChannel
+})
 
 export default connect(
     mapStateToProps,
-    { signOutUser }
+    { signOutUser, getAllChannelsAdmin, getCurrentUserInfo }
 )(Home)

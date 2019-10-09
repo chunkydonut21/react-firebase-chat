@@ -30,6 +30,14 @@ code {
     margin-right: 8px;
 }
 
+.bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    margin-bottom: 10px;
+    margin-left: 10px;
+}
+
 .list-style {
     margin-left: 24px;
     margin-right: 24px;
@@ -58,21 +66,22 @@ code {
 }
 
 .input-box {
-    width: 65%;
-    height: 80px !important;
+    width: 75%;
+    height: 60px !important;
     font-size: 24px;
+    margin-right: 8px;
 }
 
 .input-button {
-    height: 80px;
-    width: 80px;
+    height: 60px;
+    width: 60px;
     border-radius: 0;
     margin-right: 8px;
 }
 
 .input-button-send {
-    height: 80px;
-    width: 80px;
+    height: 60px;
+    width: 60px;
     border-radius: 0;
     margin-right: 8px;
     background-color: green;
@@ -129,4 +138,47 @@ code {
     color: #fff;
     font-size: 15px;
     font-weight: 600;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.justify-content-center {
+    justify-content: center;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.message {
+    padding: 8px;
+}
+
+.message-section {
+    margin-left: 8px;
+}
+
+.message-sender {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.message-sender > span {
+    font-size: 13px;
+    font-weight: 300;
+    color: grey;
+}
+.message-text {
+    font-size: 16px;
+    color: #212121;
+}
+
+.fav {
+    color: #ff0000;
+}
+
+.non-fav {
+    color: grey;
 }

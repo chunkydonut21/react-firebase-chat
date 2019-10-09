@@ -10,7 +10,7 @@ const reducer = (state = INITIAL_STATE, action) => {
         case SET_USER:
             return { ...state, currentUser: action.payload }
         case CLEAR_USER:
-            return { ...state, currentUser: action.payload }
+            return { ...state, currentUser: null }
         case AUTH_ERROR:
             return { ...state, authErrors: action.payload }
         default:

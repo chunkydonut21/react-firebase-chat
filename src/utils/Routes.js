@@ -4,14 +4,12 @@ import firebase from 'firebase'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { setUser, clearUser } from '../actions/index'
-import firebaseConfig from './config'
 import Register from '../pages/Register'
 import Login from '../pages/Login'
 import Home from '../pages/Home'
 
 export class Routes extends Component {
     componentDidMount() {
-        firebase.initializeApp(firebaseConfig)
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
                 this.props.setUser(user)

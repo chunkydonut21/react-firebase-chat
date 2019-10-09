@@ -1,15 +1,18 @@
 import React, { Component } from 'react'
-import { Col, Modal, Form, Input } from 'antd'
+import { Col, Modal, Form, Input, Button } from 'antd'
 import logo from '../utils/images/logo.png'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faCommentAlt, faHeart } from '@fortawesome/free-solid-svg-icons'
 import { List } from 'antd'
 import { connect } from 'react-redux'
-import { addChannel } from '../actions/index'
-
-const joinedChannels = ['# Bicycling', '# Hiking', '# Dancing', '# Singing', '# Horse Riding']
-const favChannels = ['# Bicycling', '# Hiking', '# Horse Riding']
-const adminChannels = ['# Bicycling', '# Hiking']
+import {
+    addChannel,
+    getAllChannelsAdmin,
+    findAllMessagesByChannel,
+    getChannelInfo,
+    getAllUsers,
+    signOutUser
+} from '../actions/index'
 
 const adminHeader = (
     <div className="channel-header">
@@ -32,7 +35,9 @@ class ChannelDrawer extends Component {
         visible: false,
         confirmLoading: false,
         channelName: '',
-        channelNameError: false
+        channelNameError: false,
+        joinedChannels: false,
+        favChannels: false
     }
 
     showModal = () => this.setState({ visible: true })
@@ -52,6 +57,12 @@ class ChannelDrawer extends Component {
         this.setState({ channelName: e.target.value, channelNameError: !e.target.value ? true : false })
     }
 
+    handleChannelDetails = item => {
+        this.props.findAllMessagesByChannel(item)
+        this.props.getChannelInfo(item)
+        this.props.getAllUsers()
+    }
+
     render() {
         const joinedHeader = (
             <div className="channel-header">
@@ -65,41 +76,70 @@ class ChannelDrawer extends Component {
         )
         const { visible, confirmLoading } = this.state
 
+        console.log(this.props, 'LOL')
+        console.log(this.state, 'STATE')
+
         return (
             <Col md={4} className="channel-drawer">
                 <div className="logo-style">
                     <img src={logo} alt="Brand Name" />
                 </div>
                 <div className="user-section">
-                    <img src="http://gravatar.com/avatar/b4d2c5a80a8b74e5939285e1dce7b1b3?d=identicon" alt="Avatar" />
-                    <span>John Doe</span>
+                    {this.props.currentProfile && <img src={this.props.currentProfile.avatar} alt="Avatar" />}
+                    {this.props.currentProfile && <span>{this.props.currentProfile.name}</span>}
                 </div>
                 <div className="list-style">
                     <List
                         size="small"
                         header={joinedHeader}
-                        dataSource={joinedChannels}
+                        dataSource={
+                            this.props.currentProfile && this.props.currentProfile.channels
+                                ? this.props.currentProfile.channels
+                                : []
+                        }
                         className="list-inner"
-                        renderItem={item => <List.Item>{item}</List.Item>}
+                        renderItem={item => (
+                            <List.Item onClick={() => this.handleChannelDetails(item)}>{item.channelName}</List.Item>
+                        )}
                     />
                 </div>
                 <div className="list-style">
                     <List
                         size="small"
                         header={adminHeader}
-                        dataSource={adminChannels}
+                        dataSource={this.props.channelsByAdmin}
                         className="list-inner"
-                        renderItem={item => <List.Item>{item}</List.Item>}
+                        renderItem={item => (
+                            <List.Item onClick={() => this.handleChannelDetails(item)}># {item.channelName}</List.Item>
+                        )}
                     />
                 </div>
                 <div className="list-style">
                     <List
                         size="small"
                         header={favHeader}
-                        dataSource={favChannels}
+                        dataSource={
+                            this.props.currentProfile && this.props.currentProfile.favorites
+                                ? this.props.currentProfile.favorites
+                                : []
+                        }
                         className="list-inner"
-                        renderItem={item => <List.Item>{item}</List.Item>}
+                        renderItem={item => (
+                            <List.Item onClick={() => this.handleChannelDetails(item)}>{item.channelName}</List.Item>
+                        )}
                     />
+                </div>
+                <div>
+                    <Button
+                        type="primary"
+                        style={{ marginLeft: 66 }}
+                        icon="logout"
+                        size="large"
+                        className="add-button bottom"
+                        onClick={() => this.props.signOutUser()}
+                    >
+                        Logout
+                    </Button>
                 </div>
                 <div>
                     <Modal
@@ -126,7 +166,12 @@ class ChannelDrawer extends Component {
     }
 }
 
+const mapStateToProps = ({ chat }) => ({
+    channelsByAdmin: chat.channelsByAdmin,
+    currentProfile: chat.currentProfile
+})
+
 export default connect(
-    null,
-    { addChannel }
+    mapStateToProps,
+    { addChannel, getAllChannelsAdmin, findAllMessagesByChannel, getChannelInfo, getAllUsers, signOutUser }
 )(ChannelDrawer)
