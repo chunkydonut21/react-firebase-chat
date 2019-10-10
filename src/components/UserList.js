@@ -9,33 +9,6 @@ import { addUserToChannel, removeUserFromChannel } from '../actions/index'
 
 const { TabPane } = Tabs
 
-const allUsers = [
-    {
-        title: 'Ant Design Title 1'
-    },
-    {
-        title: 'Ant Design Title 2'
-    },
-    {
-        title: 'Ant Design Title 3'
-    },
-    {
-        title: 'Ant Design Title 4'
-    }
-]
-
-const groupMembers = [
-    {
-        title: 'Ant Design Title 1'
-    },
-    {
-        title: 'Ant Design Title 2'
-    },
-    {
-        title: 'Ant Design Title 3'
-    }
-]
-
 class UserList extends Component {
     render() {
         console.log('LOLLLL', this.props)

@@ -354,7 +354,7 @@ export const findAllMessagesByChannel = channel => async dispatch => {
 }
 
 // uploading images in message
-export const uploadImage = uri => async dispatch => {
+export const uploadImage = (channelId, fileName) => async dispatch => {
     const db = firebase.firestore()
     const { currentUser } = firebase.auth()
 
@@ -364,11 +364,10 @@ export const uploadImage = uri => async dispatch => {
         .storage()
         .ref('image')
         .child(String(file))
-        .putString(uri, 'base64', { contentType: 'image/jpg' })
+        .put(fileName)
         .then(result => {
             result.ref.getDownloadURL().then(downloadUrl => {
-                const image = {
-                    _id: String(file),
+                const messageSent = {
                     createdAt: new Date().getTime(),
                     user: {
                         userId: currentUser.uid,
@@ -379,8 +378,10 @@ export const uploadImage = uri => async dispatch => {
                     image: downloadUrl
                 }
 
-                db.collection('messages')
-                    .add(image)
+                db.collection('channelsChat')
+                    .doc(channelId)
+                    .collection('messages')
+                    .add(messageSent)
                     .then(() => dispatch({ type: MESSAGE_SENT }))
                     .catch(err => dispatch({ type: MESSAGE_SENT_FAILED }))
             })
