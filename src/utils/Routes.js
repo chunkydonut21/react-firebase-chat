@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Route, Switch } from 'react-router-dom'
-import firebase from 'firebase'
+import firebase from 'firebase/app'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { setUser, clearUser } from '../actions/index'

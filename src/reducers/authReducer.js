@@ -1,4 +1,4 @@
-import { SET_USER, CLEAR_USER, AUTH_ERROR } from '../actions'
+import { TYPES } from "../actions/types"
 
 const INITIAL_STATE = {
   currentUser: null,
@@ -7,11 +7,11 @@ const INITIAL_STATE = {
 
 const reducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
-    case SET_USER:
+    case TYPES.SET_USER:
       return { ...state, currentUser: action.payload }
-    case CLEAR_USER:
+    case TYPES.CLEAR_USER:
       return { ...state, currentUser: null }
-    case AUTH_ERROR:
+    case TYPES.AUTH_ERROR:
       return { ...state, authErrors: action.payload }
     default:
       return state

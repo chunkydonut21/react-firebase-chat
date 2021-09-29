@@ -7,47 +7,40 @@ export const registerUser = (values) => async (dispatch) => {
   const { username, password, email } = values
   const db = firebase.firestore()
 
-  firebase
-    .auth()
-    .createUserWithEmailAndPassword(email, password)
-    .then((createdUser) => {
-      createdUser.user
-        .updateProfile({
-          displayName: username,
-          photoURL: `http://gravatar.com/avatar/${md5(createdUser.user.email)}?d=identicon`
-        })
-        .then(() => {
-          const { currentUser } = firebase.auth()
+  try {
+    const createdUser = await firebase.auth().createUserWithEmailAndPassword(email, password)
 
-          db.collection('users')
-            .doc(currentUser.uid)
-            .set({
-              userId: currentUser.uid,
-              name: currentUser.displayName,
-              email: currentUser.email,
-              avatar: currentUser.photoURL,
-              favorites: null
-            })
-            .then(() => dispatch({ type: TYPES.SET_USER, payload: currentUser }))
-            .catch((err) => dispatch({ type: TYPES.AUTH_ERROR, payload: err.message }))
-        })
-        .catch((err) => dispatch({ type: TYPES.AUTH_ERROR, payload: err.message }))
+    createdUser.user.updateProfile({
+      displayName: username,
+      photoURL: `http://gravatar.com/avatar/${md5(createdUser.user.email)}?d=identicon`
     })
-    .catch((err) => dispatch({ type: TYPES.AUTH_ERROR, payload: err.message }))
+
+    const { currentUser } = firebase.auth()
+
+    db.collection('users').doc(currentUser.uid).set({
+      userId: currentUser.uid,
+      name: currentUser.displayName,
+      email: currentUser.email,
+      avatar: currentUser.photoURL,
+      favorites: null
+    })
+
+    dispatch({ type: TYPES.SET_USER, payload: currentUser })
+  } catch (err) {
+    dispatch({ type: TYPES.AUTH_ERROR, payload: err.message })
+  }
 }
 
 export const loginUser =
   ({ email, password }) =>
   async (dispatch) => {
-    firebase
-      .auth()
-      .signInWithEmailAndPassword(email, password)
-      .then((res) => {
-        const { currentUser } = firebase.auth()
-
-        dispatch({ type: TYPES.SET_USER, payload: currentUser })
-      })
-      .catch((err) => dispatch({ type: TYPES.AUTH_ERROR, payload: err.message }))
+    try {
+      await firebase.auth().signInWithEmailAndPassword(email, password)
+      const { currentUser } = firebase.auth()
+      dispatch({ type: TYPES.SET_USER, payload: currentUser })
+    } catch (err) {
+      dispatch({ type: TYPES.AUTH_ERROR, payload: err.message })
+    }
   }
 
 export const setUser = (user) => async (dispatch) => {
