@@ -121,7 +121,7 @@ class MessageSection extends Component {
                             <FontAwesomeIcon icon={faPlus} style={{ fontSize: 28 }} />
                         </Button>
                         {this.state.togglePicker && (
-                            <div onBlur={() => this.setState({ togglePicker: !this.state.togglePicker })}>
+                            <div>
                                 <Picker
                                     onSelect={e => {
                                         this.setState(prevState => ({

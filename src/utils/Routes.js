@@ -9,30 +9,27 @@ import Login from '../pages/Login'
 import Home from '../pages/Home'
 
 export class Routes extends Component {
-    componentDidMount() {
-        firebase.auth().onAuthStateChanged(user => {
-            if (user) {
-                this.props.setUser(user)
-                this.props.history.push('/')
-            } else {
-                this.props.history.push('/login')
-                this.props.clearUser()
-            }
-        })
-    }
+  componentDidMount() {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        this.props.setUser(user)
+        this.props.history.push('/')
+      } else {
+        this.props.history.push('/login')
+        this.props.clearUser()
+      }
+    })
+  }
 
-    render() {
-        return (
-            <Switch>
-                <Route exact path="/" name="Home" component={Home} />
-                <Route exact path="/register" name="Register" component={Register} />
-                <Route exact path="/login" name="Login" component={Login} />
-            </Switch>
-        )
-    }
+  render() {
+    return (
+      <Switch>
+        <Route exact path="/" name="Home" component={Home} />
+        <Route exact path="/register" name="Register" component={Register} />
+        <Route exact path="/login" name="Login" component={Login} />
+      </Switch>
+    )
+  }
 }
 
-export default connect(
-    null,
-    { setUser, clearUser }
-)(withRouter(Routes))
+export default connect(null, { setUser, clearUser })(withRouter(Routes))
