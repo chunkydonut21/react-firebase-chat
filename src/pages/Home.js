@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Row, Layout, message } from 'antd'
 import { signOutUser, getAllChannelsAdmin, getCurrentUserInfo } from '../actions/index'
-import Sidebar from '../components/Sidebar'
 import ChannelDrawer from '../components/ChannelDrawer'
 import MessageSection from '../components/MessageSection'
 import UserList from '../components/UserList'
@@ -27,7 +26,6 @@ class Home extends Component {
         }
 
         if (prevProps.currentUser !== this.props.currentUser) {
-            console.log('called', prevProps.currentUser, this.props.currentUser)
             const userId = this.props.currentUser.uid
             this.props.getCurrentUserInfo(userId)
             this.props.getAllChannelsAdmin(userId)

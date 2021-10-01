@@ -92,25 +92,28 @@ export const addChannel = (channelName) => async (dispatch) => {
     avatar: currentUser.photoURL
   }
 
-  db.collection('channels')
-    .add({
+  try {
+    const res = await db.collection('channels').add({
       admin: currentUser.uid,
       channelName: channelName,
       users: firebase.firestore.FieldValue.arrayUnion(userObj),
       timestamp: new Date().getTime()
     })
-    .then((res) => {
-      db.collection('users')
-        .doc(userObj.userId)
-        .update({
-          channels: firebase.firestore.FieldValue.arrayUnion({
-            channelId: res.id,
-            channelName
-          })
+
+    await db
+      .collection('users')
+      .doc(userObj.userId)
+      .update({
+        channels: firebase.firestore.FieldValue.arrayUnion({
+          channelId: res.id,
+          channelName
         })
-        .then((res) => dispatch({ type: TYPES.CHANNEL_ADDED }))
-    })
-    .catch((err) => dispatch({ type: TYPES.CHANNEL_ADD_FAILED }))
+      })
+
+    dispatch({ type: TYPES.CHANNEL_ADDED })
+  } catch (err) {
+    dispatch({ type: TYPES.CHANNEL_ADD_FAILED })
+  }
 }
 
 export const getChannelInfo = (channel) => async (dispatch) => {
@@ -151,13 +154,17 @@ export const addChannelToFavorites = (channelObj) => async (dispatch) => {
   const db = firebase.firestore()
   const { currentUser } = firebase.auth()
 
-  db.collection('users')
-    .doc(currentUser.uid)
-    .update({
-      favorites: firebase.firestore.FieldValue.arrayUnion(channelObj)
-    })
-    .then((res) => dispatch({ type: TYPES.ADD_CHANNEL_TO_FAV }))
-    .catch((err) => dispatch({ type: TYPES.ADD_CHANNEL_TO_FAV_ERROR }))
+  try {
+    await db
+      .collection('users')
+      .doc(currentUser.uid)
+      .update({
+        favorites: firebase.firestore.FieldValue.arrayUnion(channelObj)
+      })
+    dispatch({ type: TYPES.ADD_CHANNEL_TO_FAV })
+  } catch (err) {
+    dispatch({ type: TYPES.ADD_CHANNEL_TO_FAV_ERROR })
+  }
 }
 
 // remove channels marked as favorites
@@ -165,13 +172,17 @@ export const removeChannelFromFav = (channelObj) => async (dispatch) => {
   const db = firebase.firestore()
   const { currentUser } = firebase.auth()
 
-  db.collection('users')
-    .doc(currentUser.uid)
-    .update({
-      favorites: firebase.firestore.FieldValue.arrayRemove(channelObj)
-    })
-    .then((res) => dispatch({ type: TYPES.REMOVE_CHANNEL_FROM_FAV }))
-    .catch((err) => dispatch({ type: TYPES.REMOVE_CHANNEL_FROM_FAV_ERROR }))
+  try {
+    await db
+      .collection('users')
+      .doc(currentUser.uid)
+      .update({
+        favorites: firebase.firestore.FieldValue.arrayRemove(channelObj)
+      })
+    dispatch({ type: TYPES.REMOVE_CHANNEL_FROM_FAV })
+  } catch (err) {
+    dispatch({ type: TYPES.REMOVE_CHANNEL_FROM_FAV_ERROR })
+  }
 }
 
 // add user to channel
@@ -190,21 +201,24 @@ export const addUserToChannel = (channelObj, userObj) => async (dispatch) => {
 
   const db = firebase.firestore()
 
-  db.collection('channels')
-    .doc(c.channelId)
-    .update({
-      users: firebase.firestore.FieldValue.arrayUnion(u)
-    })
-    .then((res) => {
-      db.collection('users')
-        .doc(u.userId)
-        .update({
-          channels: firebase.firestore.FieldValue.arrayUnion(c)
-        })
-        .then(() => dispatch({ type: TYPES.USER_ADDED_TO_CHANNEL }))
-        .catch(() => dispatch({ type: TYPES.ERROR_ADDING_USER_TO_CHANNEL }))
-    })
-    .catch(() => dispatch({ type: TYPES.ERROR_ADDING_USER_TO_CHANNEL }))
+  try {
+    await db
+      .collection('channels')
+      .doc(c.channelId)
+      .update({
+        users: firebase.firestore.FieldValue.arrayUnion(u)
+      })
+
+    await db
+      .collection('users')
+      .doc(u.userId)
+      .update({
+        channels: firebase.firestore.FieldValue.arrayUnion(c)
+      })
+    dispatch({ type: TYPES.USER_ADDED_TO_CHANNEL })
+  } catch (err) {
+    dispatch({ type: TYPES.ERROR_ADDING_USER_TO_CHANNEL })
+  }
 }
 
 // remove user from channel
@@ -223,21 +237,24 @@ export const removeUserFromChannel = (channelObj, userObj) => async (dispatch) =
 
   const db = firebase.firestore()
 
-  db.collection('channels')
-    .doc(c.channelId)
-    .update({
-      users: firebase.firestore.FieldValue.arrayRemove(u)
-    })
-    .then((res) => {
-      db.collection('users')
-        .doc(u.userId)
-        .update({
-          channels: firebase.firestore.FieldValue.arrayRemove(c)
-        })
-        .then(() => dispatch({ type: TYPES.USER_REMOVED_FROM_CHANNEL }))
-        .catch(() => dispatch({ type: TYPES.ERROR_REMOVING_USER_FROM_CHANNEL }))
-    })
-    .catch(() => dispatch({ type: TYPES.ERROR_REMOVING_USER_FROM_CHANNEL }))
+  try {
+    await db
+      .collection('channels')
+      .doc(c.channelId)
+      .update({
+        users: firebase.firestore.FieldValue.arrayRemove(u)
+      })
+
+    await db
+      .collection('users')
+      .doc(u.userId)
+      .update({
+        channels: firebase.firestore.FieldValue.arrayRemove(c)
+      })
+    dispatch({ type: TYPES.USER_REMOVED_FROM_CHANNEL })
+  } catch (err) {
+    dispatch({ type: TYPES.ERROR_REMOVING_USER_FROM_CHANNEL })
+  }
 }
 
 // leave channel
@@ -256,21 +273,25 @@ export const leaveChannel = (channelObj, userObj) => async (dispatch) => {
 
   const db = firebase.firestore()
 
-  db.collection('channels')
-    .doc(c.channelId)
-    .update({
-      users: firebase.firestore.FieldValue.arrayRemove(u)
-    })
-    .then((res) => {
-      db.collection('users')
-        .doc(u.userId)
-        .update({
-          channels: firebase.firestore.FieldValue.arrayRemove(c)
-        })
-        .then(() => dispatch({ type: TYPES.USER_REMOVED_FROM_CHANNEL }))
-        .catch(() => dispatch({ type: TYPES.ERROR_REMOVING_USER_FROM_CHANNEL }))
-    })
-    .catch(() => dispatch({ type: TYPES.ERROR_REMOVING_USER_FROM_CHANNEL }))
+  try {
+    await db
+      .collection('channels')
+      .doc(c.channelId)
+      .update({
+        users: firebase.firestore.FieldValue.arrayRemove(u)
+      })
+
+    await db
+      .collection('users')
+      .doc(u.userId)
+      .update({
+        channels: firebase.firestore.FieldValue.arrayRemove(c)
+      })
+
+    dispatch({ type: TYPES.USER_REMOVED_FROM_CHANNEL })
+  } catch (err) {
+    dispatch({ type: TYPES.ERROR_REMOVING_USER_FROM_CHANNEL })
+  }
 }
 
 // add message to channel
@@ -289,12 +310,12 @@ export const addMessage = (channelId, messageText) => async (dispatch) => {
     }
   }
 
-  db.collection('channelsChat')
-    .doc(channelId)
-    .collection('messages')
-    .add(messageSent)
-    .then((res) => dispatch({ type: TYPES.MESSAGE_SENT }))
-    .catch((err) => dispatch({ type: TYPES.MESSAGE_SENT_FAILED }))
+  try {
+    await db.collection('channelsChat').doc(channelId).collection('messages').add(messageSent)
+    dispatch({ type: TYPES.MESSAGE_SENT })
+  } catch (err) {
+    dispatch({ type: TYPES.MESSAGE_SENT_FAILED })
+  }
 }
 
 // list all messages from a channel
@@ -318,35 +339,30 @@ export const findAllMessagesByChannel = (channel) => async (dispatch) => {
 
 // uploading images in message
 export const uploadImage = (channelId, fileName) => async (dispatch) => {
-  const db = firebase.firestore()
-  const { currentUser } = firebase.auth()
+  try {
+    const db = firebase.firestore()
+    const { currentUser } = firebase.auth()
 
-  const file = nanoid()
+    const file = nanoid()
 
-  firebase
-    .storage()
-    .ref('image')
-    .child(String(file))
-    .put(fileName)
-    .then((result) => {
-      result.ref.getDownloadURL().then((downloadUrl) => {
-        const messageSent = {
-          createdAt: new Date().getTime(),
-          user: {
-            userId: currentUser.uid,
-            name: currentUser.displayName,
-            email: currentUser.email,
-            avatar: currentUser.photoURL
-          },
-          image: downloadUrl
-        }
+    const result = await firebase.storage().ref('image').child(String(file)).put(fileName)
+    const downloadUrl = await result.ref.getDownloadURL()
 
-        db.collection('channelsChat')
-          .doc(channelId)
-          .collection('messages')
-          .add(messageSent)
-          .then(() => dispatch({ type: TYPES.MESSAGE_SENT }))
-          .catch((err) => dispatch({ type: TYPES.MESSAGE_SENT_FAILED }))
-      })
-    })
+    const messageSent = {
+      createdAt: new Date().getTime(),
+      user: {
+        userId: currentUser.uid,
+        name: currentUser.displayName,
+        email: currentUser.email,
+        avatar: currentUser.photoURL
+      },
+      image: downloadUrl
+    }
+
+    await db.collection('channelsChat').doc(channelId).collection('messages').add(messageSent)
+
+    dispatch({ type: TYPES.MESSAGE_SENT })
+  } catch (err) {
+    dispatch({ type: TYPES.MESSAGE_SENT_FAILED })
+  }
 }
