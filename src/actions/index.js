@@ -22,7 +22,28 @@ export const registerUser = (values) => async (dispatch) => {
       name: currentUser.displayName,
       email: currentUser.email,
       avatar: currentUser.photoURL,
+      description: 'Hello, I am using Snack!',
       favorites: null
+    })
+
+    dispatch({ type: TYPES.SET_USER, payload: currentUser })
+  } catch (err) {
+    dispatch({ type: TYPES.AUTH_ERROR, payload: err.message })
+  }
+}
+
+export const updateUser = (values) => async (dispatch) => {
+  const { username, description } = values
+  const db = firebase.firestore()
+
+  try {
+    const { currentUser } = firebase.auth()
+    currentUser.updateProfile({
+      displayName: username
+    })
+    db.collection('users').doc(currentUser.uid).update({
+      name: currentUser.displayName,
+      description
     })
 
     dispatch({ type: TYPES.SET_USER, payload: currentUser })
@@ -96,7 +117,7 @@ export const addChannel = (channelName) => async (dispatch) => {
     const res = await db.collection('channels').add({
       admin: currentUser.uid,
       channelName: channelName,
-      users: firebase.firestore.FieldValue.arrayUnion(userObj),
+      users: firebase.firestore.FieldValue.arrayUnion(userObj.userId),
       timestamp: new Date().getTime()
     })
 
@@ -117,11 +138,21 @@ export const addChannel = (channelName) => async (dispatch) => {
 }
 
 export const getChannelInfo = (channel) => async (dispatch) => {
+  console.log('CALLED')
   const db = firebase.firestore()
 
   db.collection('channels')
     .doc(channel.channelId)
-    .onSnapshot((doc) => dispatch({ type: TYPES.CURRENT_CHANNEL_INFO, payload: { channelId: doc.id, ...doc.data() } }))
+    .onSnapshot((doc) => {
+      let userData = []
+      doc.data().users.forEach((element, index) => {
+        db.collection('users')
+          .doc(element)
+          .get()
+          .then((res) => userData.push(res.data()))
+      })
+      dispatch({ type: TYPES.CURRENT_CHANNEL_INFO, payload: { channelId: doc.id, ...doc.data(), users: userData } })
+    })
 }
 
 export const getAllUsers = () => async (dispatch) => {

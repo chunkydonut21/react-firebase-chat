@@ -223,6 +223,10 @@ code {
   margin-right: 42px;
 }
 
+.mr-2 {
+  margin-right: 12px;
+}
+
 .text-light {
   color: #fff;
 }

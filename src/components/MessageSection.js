@@ -2,7 +2,14 @@ import React, { Component } from 'react'
 import { Col, Card, Input, Row, Button, Avatar } from 'antd'
 import { connect } from 'react-redux'
 import moment from 'moment'
-import { addMessage, addChannelToFavorites, removeChannelFromFav, leaveChannel, uploadImage } from '../actions/index'
+import {
+  addMessage,
+  addChannelToFavorites,
+  removeChannelFromFav,
+  leaveChannel,
+  uploadImage,
+  getChannelInfo
+} from '../actions/index'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHeart, faSignOutAlt, faPlus, faShare, faFile } from '@fortawesome/free-solid-svg-icons'
 import { Picker } from 'emoji-mart'
@@ -24,9 +31,15 @@ class MessageSection extends Component {
   handleFileUpload = (e) => {
     this.props.uploadImage(this.props.currentChannel.channelId, e.target.files[0])
   }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.currentProfile !== this.props.currentProfile && this.props.currentProfile) {
+      this.props.getChannelInfo(this.props.currentChannel)
+    }
+  }
+
   render() {
     const { currentChannel, currentChannelInfo, currentUser, currentProfile } = this.props
-    console.log(this.props, 'PROPS')
     return (
       <Col md={15} style={{ background: '#dededed1' }}>
         <Row>
@@ -162,5 +175,6 @@ export default connect(mapStateToProps, {
   addChannelToFavorites,
   removeChannelFromFav,
   leaveChannel,
-  uploadImage
+  uploadImage,
+  getChannelInfo
 })(MessageSection)

@@ -2,11 +2,12 @@ import React, { Component } from 'react'
 import { Col, Modal, Form, Input, Button } from 'antd'
 import logo from '../utils/images/logo.png'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faCommentAlt, faHeart } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faCommentAlt, faHeart, faPencilAlt } from '@fortawesome/free-solid-svg-icons'
 import { List } from 'antd'
 import { connect } from 'react-redux'
 import {
   addChannel,
+  updateUser,
   getAllChannelsAdmin,
   findAllMessagesByChannel,
   getChannelInfo,
@@ -35,10 +36,16 @@ class ChannelDrawer extends Component {
     visible: false,
     confirmLoading: false,
     channelName: '',
-    channelNameError: false
+    channelNameError: false,
+    visibleProfile: false,
+    profileName: '',
+    profileNameError: false,
+    description: '',
+    descriptionError: false
   }
 
   showModal = () => this.setState({ visible: true })
+  showProfileModal = () => this.setState({ visibleProfile: true })
 
   handleOk = () => {
     if (!this.state.channelName) return this.setState({ channelNameError: true })
@@ -47,16 +54,46 @@ class ChannelDrawer extends Component {
     this.setState({ visible: false, confirmLoading: false, channelName: '', channelNameError: false })
   }
 
+  handleOkProfile = () => {
+    const { profileName, description } = this.state
+    if (!profileName || !description) {
+      this.setState({ profileNameError: !profileName, descriptionError: !description })
+      return
+    }
+    this.setState({ confirmLoading: true })
+    this.props.updateUser({ profileName, description })
+    this.setState({ visibleProfile: false, confirmLoading: false, profileNameError: '', descriptionError: false })
+  }
+
+  handleCancelProfile = () =>
+    this.setState({
+      visibleProfile: false,
+      profileName: this.props.currentProfile?.name,
+      description: this.props.currentProfile?.description
+    })
+
   handleCancel = () => this.setState({ visible: false, channelName: '', channelNameError: false })
 
   handleChannelName = (e) => {
-    this.setState({ channelName: e.target.value, channelNameError: !!e.target.value })
+    this.setState({ channelName: e.target.value, channelNameError: !e.target.value })
   }
 
   handleChannelDetails = (item) => {
     this.props.findAllMessagesByChannel(item)
     this.props.getChannelInfo(item)
     this.props.getAllUsers()
+  }
+  handleProfileInput = (e, type, error) => {
+    this.setState({ [type]: e.target.value, [error]: !e.target.value })
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.currentProfile !== this.props.currentProfile && this.props.currentProfile) {
+      this.setState({
+        profileName: this.props.currentProfile?.name,
+        description: this.props.currentProfile?.description
+      })
+    }
   }
 
   render() {
@@ -70,7 +107,7 @@ class ChannelDrawer extends Component {
         </span>
       </div>
     )
-    const { visible, confirmLoading } = this.state
+    const { visible, confirmLoading, visibleProfile } = this.state
     return (
       <Col md={4} className="channel-drawer">
         <div className="logo-style">
@@ -79,6 +116,9 @@ class ChannelDrawer extends Component {
         <div className="user-section">
           {this.props.currentProfile && <img src={this.props.currentProfile?.avatar} alt="Avatar" />}
           <span>{this.props.currentProfile?.name}</span>
+          <span>
+            <FontAwesomeIcon className="cp" icon={faPencilAlt} onClick={this.showProfileModal} />
+          </span>
         </div>
         <div className="list-style">
           <List
@@ -88,7 +128,9 @@ class ChannelDrawer extends Component {
             className="list-inner"
             renderItem={(item) => (
               <List.Item onClick={() => this.handleChannelDetails(item)}>
-                <a className="cp list-anchor"># {item.channelName}</a>
+                <a className="cp list-anchor" href="/#">
+                  # {item.channelName}
+                </a>
               </List.Item>
             )}
           />
@@ -101,7 +143,9 @@ class ChannelDrawer extends Component {
             className="list-inner"
             renderItem={(item) => (
               <List.Item onClick={() => this.handleChannelDetails(item)}>
-                <a className="cp list-anchor"># {item.channelName}</a>
+                <a className="cp list-anchor" href="/#">
+                  # {item.channelName}
+                </a>
               </List.Item>
             )}
           />
@@ -114,7 +158,9 @@ class ChannelDrawer extends Component {
             className="list-inner"
             renderItem={(item) => (
               <List.Item onClick={() => this.handleChannelDetails(item)}>
-                <a className="cp list-anchor"># {item.channelName}</a>
+                <a className="cp list-anchor" href="/#">
+                  # {item.channelName}
+                </a>
               </List.Item>
             )}
           />
@@ -151,6 +197,40 @@ class ChannelDrawer extends Component {
             </Form.Item>
           </Modal>
         </div>
+        <div>
+          <Modal
+            title="Edit your Profile"
+            visible={visibleProfile}
+            onOk={this.handleOkProfile}
+            confirmLoading={confirmLoading}
+            onCancel={() => this.setState({ visibleProfile: false })}
+          >
+            <Form>
+              <Form.Item
+                validateStatus={this.state.profileNameError ? 'error' : ''}
+                help={this.state.profileNameError && 'Profile Name is required'}
+              >
+                <label className="mr-2">Username</label>
+                <Input
+                  placeholder="Your Username"
+                  value={this.state.profileName}
+                  onChange={(e) => this.handleProfileInput(e, 'profileName', 'profileNameError')}
+                />
+              </Form.Item>
+              <Form.Item
+                validateStatus={this.state.descriptionError ? 'error' : ''}
+                help={this.state.descriptionError && 'Profile Description is required'}
+              >
+                <label className="mr-2">Description</label>
+                <Input
+                  placeholder="Your Description"
+                  value={this.state.description}
+                  onChange={(e) => this.handleProfileInput(e, 'description', 'descriptionError')}
+                />
+              </Form.Item>
+            </Form>
+          </Modal>
+        </div>
       </Col>
     )
   }
@@ -163,6 +243,7 @@ const mapStateToProps = ({ chat }) => ({
 
 export default connect(mapStateToProps, {
   addChannel,
+  updateUser,
   getAllChannelsAdmin,
   findAllMessagesByChannel,
   getChannelInfo,
