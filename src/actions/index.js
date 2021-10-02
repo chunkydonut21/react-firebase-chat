@@ -2,7 +2,8 @@ import md5 from 'md5'
 import firebase from '../utils/config'
 import nanoid from 'nanoid'
 import { TYPES } from './types'
-
+import { message } from 'antd'
+var unsubscribe
 export const registerUser = (values) => async (dispatch) => {
   const { username, password, email } = values
   const db = firebase.firestore()
@@ -10,20 +11,22 @@ export const registerUser = (values) => async (dispatch) => {
   try {
     const createdUser = await firebase.auth().createUserWithEmailAndPassword(email, password)
 
-    createdUser.user.updateProfile({
+    await createdUser.user.updateProfile({
       displayName: username,
       photoURL: `http://gravatar.com/avatar/${md5(createdUser.user.email)}?d=identicon`
     })
 
     const { currentUser } = firebase.auth()
 
-    db.collection('users').doc(currentUser.uid).set({
+    await db.collection('users').doc(currentUser.uid).set({
       userId: currentUser.uid,
       name: currentUser.displayName,
       email: currentUser.email,
       avatar: currentUser.photoURL,
       favorites: null
     })
+
+    await firebase.auth().signInWithEmailAndPassword(email, password)
 
     dispatch({ type: TYPES.SET_USER, payload: currentUser })
   } catch (err) {
@@ -52,16 +55,28 @@ export const clearUser = () => async (dispatch) => {
 }
 
 export const signOutUser = () => async (dispatch) => {
-  await firebase.auth().signOut()
-  dispatch({ type: TYPES.CLEAR_USER })
+  try {
+    unsubscribe()
+    await firebase.auth().signOut()
+    dispatch({ type: TYPES.CLEAR_USER })
+    dispatch({ type: TYPES.CLEAR_CHAT })
+  } catch (err) {
+    console.log(err)
+  }
 }
 
 export const getCurrentUserInfo = (currentUserId) => async (dispatch) => {
   const db = firebase.firestore()
 
-  db.collection('users')
-    .doc(currentUserId)
+  const { currentUser } = firebase.auth()
+
+  unsubscribe = db
+    .collection('users')
+    .doc(currentUser.uid)
     .onSnapshot((doc) => dispatch({ type: TYPES.CURENT_USER_INFO, payload: doc.data() }))
+
+  // const p = await db.collection('users').doc(currentUser.uid).get()
+  // dispatch({ type: TYPES.CURENT_USER_INFO, payload: p.data() })
 }
 
 // get all channels list
@@ -110,8 +125,11 @@ export const addChannel = (channelName) => async (dispatch) => {
         })
       })
 
+    message.success('Channel has been created.')
+
     dispatch({ type: TYPES.CHANNEL_ADDED })
   } catch (err) {
+    message.error('This is an error while creating a channel.')
     dispatch({ type: TYPES.CHANNEL_ADD_FAILED })
   }
 }
@@ -275,20 +293,19 @@ export const leaveChannel = (channelObj, userObj) => async (dispatch) => {
 
   try {
     await db
-      .collection('channels')
-      .doc(c.channelId)
-      .update({
-        users: firebase.firestore.FieldValue.arrayRemove(u)
-      })
-
-    await db
       .collection('users')
       .doc(u.userId)
       .update({
         channels: firebase.firestore.FieldValue.arrayRemove(c)
       })
 
-    dispatch({ type: TYPES.USER_REMOVED_FROM_CHANNEL })
+    await db
+      .collection('channels')
+      .doc(c.channelId)
+      .update({
+        users: firebase.firestore.FieldValue.arrayRemove(u)
+      })
+    dispatch({ type: TYPES.USER_LEFT_FROM_CHANNEL })
   } catch (err) {
     dispatch({ type: TYPES.ERROR_REMOVING_USER_FROM_CHANNEL })
   }

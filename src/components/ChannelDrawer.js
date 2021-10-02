@@ -50,7 +50,7 @@ class ChannelDrawer extends Component {
   handleCancel = () => this.setState({ visible: false, channelName: '', channelNameError: false })
 
   handleChannelName = (e) => {
-    this.setState({ channelName: e.target.value, channelNameError: !!e.target.value })
+    this.setState({ channelName: e.target.value, channelNameError: !e.target.value })
   }
 
   handleChannelDetails = (item) => {
@@ -70,6 +70,8 @@ class ChannelDrawer extends Component {
         </span>
       </div>
     )
+
+    const { currentProfile } = this.props
     const { visible, confirmLoading } = this.state
     return (
       <Col md={4} className="channel-drawer">
@@ -77,14 +79,14 @@ class ChannelDrawer extends Component {
           <img src={logo} alt="Brand Name" />
         </div>
         <div className="user-section">
-          {this.props.currentProfile && <img src={this.props.currentProfile?.avatar} alt="Avatar" />}
-          <span>{this.props.currentProfile?.name}</span>
+          {currentProfile && <img src={currentProfile?.avatar} alt="Avatar" />}
+          <span>{currentProfile?.name}</span>
         </div>
         <div className="list-style">
           <List
             size="small"
             header={joinedHeader}
-            dataSource={this.props.currentProfile?.channels || []}
+            dataSource={currentProfile?.channels || []}
             className="list-inner"
             renderItem={(item) => (
               <List.Item onClick={() => this.handleChannelDetails(item)}>
@@ -110,7 +112,7 @@ class ChannelDrawer extends Component {
           <List
             size="small"
             header={favHeader}
-            dataSource={this.props.currentProfile?.favorites || []}
+            dataSource={currentProfile?.favorites || []}
             className="list-inner"
             renderItem={(item) => (
               <List.Item onClick={() => this.handleChannelDetails(item)}>

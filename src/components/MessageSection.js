@@ -26,7 +26,6 @@ class MessageSection extends Component {
   }
   render() {
     const { currentChannel, currentChannelInfo, currentUser, currentProfile } = this.props
-    console.log(this.props, 'PROPS')
     return (
       <Col md={15} style={{ background: '#dededed1' }}>
         <Row>
@@ -62,7 +61,7 @@ class MessageSection extends Component {
                       </div>
                     )}
 
-                    {currentChannelInfo?.admin !== currentUser.uid ? (
+                    {currentChannelInfo?.admin !== currentUser?.uid ? (
                       <div className="cp" onClick={() => this.props.leaveChannel(currentChannelInfo, currentProfile)}>
                         <FontAwesomeIcon icon={faSignOutAlt} />
                       </div>
@@ -95,7 +94,7 @@ class MessageSection extends Component {
               ))}
             </Card>
           </Col>
-          <form onSubmit={this.handleSubmit}>
+          <form onSubmit={(e) => this.handleSubmit(e)}>
             <Col style={{ height: '15vh' }} className="d-flex justify-content-center align-items-center">
               <Button
                 type="primary"
@@ -138,9 +137,9 @@ class MessageSection extends Component {
                 />
               </div>
 
-              <Button type="submit" size="large" className="input-button-send">
+              <button type="submit" size="large" className="input-button-send">
                 <FontAwesomeIcon icon={faShare} style={{ fontSize: 28 }} />
-              </Button>
+              </button>
             </Col>{' '}
           </form>
         </Row>

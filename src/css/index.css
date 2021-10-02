@@ -8,6 +8,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.root {
+  overflow-y: hidden;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
@@ -241,4 +245,8 @@ code {
 
 .list-anchor:hover {
   color: rgb(212, 212, 224);
+}
+
+button {
+  border: 0;
 }

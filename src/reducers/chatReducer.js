@@ -39,6 +39,8 @@ const reducer = (state = INITIAL_STATE, action) => {
       return { ...state, userAddedToChannelFailed: true }
     case TYPES.USER_REMOVED_FROM_CHANNEL:
       return { ...state, userRemovedFromChannel: true }
+    case TYPES.USER_LEFT_FROM_CHANNEL:
+      return { ...state, currentChannel: null }
     case TYPES.ERROR_REMOVING_USER_FROM_CHANNEL:
       return { ...state, userRemovedFromChannelError: true }
     case TYPES.ADD_CHANNEL_TO_FAV:
@@ -55,7 +57,7 @@ const reducer = (state = INITIAL_STATE, action) => {
       return { ...state, currentChannelInfo: action.payload }
     case TYPES.GET_ALL_USERS:
       return { ...state, allUsers: action.payload }
-    case TYPES.CLEAR_USER:
+    case TYPES.CLEAR_CHAT:
       return INITIAL_STATE
     default:
       return state
