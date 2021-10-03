@@ -34,7 +34,7 @@ class MessageSection extends Component {
               title={
                 <div className="card-header-custom">
                   <div># {currentChannel ? currentChannel.channelName : ''}</div>
-                  <div>
+                  <div className="d-flex">
                     {currentProfile?.favorites?.find((channel) => channel.channelId === currentChannel.channelId) ? (
                       <div
                         className="cp"

@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import { Col, Modal, Form, Input, Button } from 'antd'
-import logo from '../utils/images/logo.png'
+import logo from '../utils/images/logo-light.png'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faCommentAlt, faHeart } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faCommentAlt, faHeart, faSignOutAlt } from '@fortawesome/free-solid-svg-icons'
 import { List } from 'antd'
 import { connect } from 'react-redux'
 import {
@@ -80,7 +80,15 @@ class ChannelDrawer extends Component {
         </div>
         <div className="user-section">
           {currentProfile && <img src={currentProfile?.avatar} alt="Avatar" />}
-          <span>{currentProfile?.name}</span>
+          <span>
+            {currentProfile?.name}{' '}
+            <FontAwesomeIcon
+              className="cp"
+              style={{ marginLeft: 4, fontSize: 18 }}
+              icon={faSignOutAlt}
+              onClick={() => this.props.signOutUser()}
+            />
+          </span>
         </div>
         <div className="list-style">
           <List
@@ -90,7 +98,9 @@ class ChannelDrawer extends Component {
             className="list-inner"
             renderItem={(item) => (
               <List.Item onClick={() => this.handleChannelDetails(item)}>
-                <a className="cp list-anchor"># {item.channelName}</a>
+                <a href="/#" className="cp list-anchor">
+                  # {item.channelName}
+                </a>
               </List.Item>
             )}
           />
@@ -103,7 +113,9 @@ class ChannelDrawer extends Component {
             className="list-inner"
             renderItem={(item) => (
               <List.Item onClick={() => this.handleChannelDetails(item)}>
-                <a className="cp list-anchor"># {item.channelName}</a>
+                <a href="/#" className="cp list-anchor">
+                  # {item.channelName}
+                </a>
               </List.Item>
             )}
           />
@@ -116,23 +128,19 @@ class ChannelDrawer extends Component {
             className="list-inner"
             renderItem={(item) => (
               <List.Item onClick={() => this.handleChannelDetails(item)}>
-                <a className="cp list-anchor"># {item.channelName}</a>
+                <a href="/#" className="cp list-anchor">
+                  # {item.channelName}
+                </a>
               </List.Item>
             )}
           />
         </div>
         <div>
-          <Button
-            type="primary"
-            style={{ marginLeft: 66 }}
-            icon="logout"
-            size="large"
-            className="add-button bottom"
-            onClick={() => this.props.signOutUser()}
-          >
-            Logout
-          </Button>
+          <p className="text-center text-light p-style">
+            Created with <FontAwesomeIcon icon={faHeart} /> by Shivam Maheshwari
+          </p>
         </div>
+
         <div>
           <Modal
             title="Create a Channel"
